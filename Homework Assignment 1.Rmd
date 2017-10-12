@@ -1,0 +1,99 @@
+---
+title: "HW1_Xiaoxiong Xu"
+author: "Xiaoxiong Xu and Xinyi Ma"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output: html_document
+header-includes: \usepackage{mathtools}
+urlcolor: blue
+---
+
+```{r setup, message=F, warning=F, results='hide'}
+knitr::opts_chunk$set(echo=TRUE, 
+                      cache=FALSE, 
+                      fig.width=5, 
+                      fig.height=5,
+                      fig.align='center')
+indent1 = '    '      
+indent2 = paste(rep(indent1, 2), collapse='')
+solcode = TRUE
+r = function(x, digits=2){ round(x, digits=digits) }
+
+# install.packages("ISLR")
+# install.packages("ggplot2")
+# install.packages("plyr")
+# install.packages("dplyr")
+# install.packages("class")
+# install.packages("readr")
+# install.packages("ggplot2")
+
+# Load libraries
+library(ISLR)
+library(ggplot2)
+library(reshape2)
+library(plyr)
+library(dplyr)
+library(class)
+library(readr)
+library(ggplot2)
+
+# Read the data
+algae <- read_table2('/Users/xiaoxiongxu/Downloads/algae_data/algaeBloom.txt',
+                     col_names=c('season','size','speed','mxPH','mnO2','Cl','NO3',
+                                 'NH4','oPO4','PO4','Chla','a1','a2','a3','a4','a5','a6','a7'),
+                     na="XXXXXXX" )
+glimpse(algae)
+```
+# 1.(a) Count the number of Observation in each season using `sumarise()` in `dplyr`.
+```{r summarise, include=FALSE}
+algae %>%
+    group_by(season) %>%
+    summarise(count = n())
+```
+# 1.(b)
+```{r mean_and_variance, include=FALSE}
+# Calculate mean of each chemical and the number of missing value of each chemcial
+algae %>% 
+  select(mnO2,Cl,NO3,NH4,oPO4,Chla) %>%
+  summary()
+
+# Calculate mean of each Chemical
+algae %>%
+  select(mnO2,Cl,NO3,NH4,oPO4,Chla) %>%
+  summarise_each(funs(mean(.,na.rm=TRUE)))
+
+# Calculate variance of each Chemical
+algae %>%
+  summarise_each(funs(var(.,na.rm=TRUE)),mnO2,Cl,NO3,NH4,oPO4,Chla)
+```
+# 1.(c)
+```{r MAD, include=FALSE}
+algae %>%
+  select(mnO2,Cl,NO3,NH4,oPO4,Chla) %>%
+  mutate(mnO2_MAD = abs(mnO2-median(mnO2, na.rm=TRUE)),
+         Cl_MAD = abs(Cl-median(Cl, na.rm=TRUE)),
+         NO3_MAD = abs(NO3-median(NO3, na.rm=TRUE)),
+         NH4_MAD = abs(NH4-median(NH4, na.rm=TRUE)),
+         oPO4_MAD = abs(oPO4-median(oPO4, na.rm=TRUE)),
+         Chla_MAD = abs(Chla-median(Chla, na.rm=TRUE))) %>%
+  summarise_each(funs(median(.,na.rm=TRUE)))
+
+algae %>%
+  select(mnO2,Cl,NO3,NH4,oPO4,Chla) %>%
+  mutate_each(funs(MAD = abs(.-median(.,na.rm=TRUE)))) %>%
+  summarise_each(funs(median(.,na.rm=TRUE)))
+```
+# 2.(a)
+```{r mxPH_hist, include=FALSE}
+algae %>% 
+  mutate(mxPH_prob = mxPH/sum(mxPH,na.rm=TRUE)) %>%
+  ggplot(aes(x=order(season), y=mxPH_prob), na.rm=TRUE, descending) + 
+  geom_histogram(aes(fill=season),stat = "identity", na.rm=TRUE) +
+  xlab("Season") +
+  ylab("Probability of mxPH")
+```
+# 2.(b)
+```{r, include=FALSE}
+
+```
+# 2.(b)
+
